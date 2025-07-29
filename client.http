@@ -11,8 +11,8 @@ POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "username": "admin",
-  "password": "admin123"
+  "username": "John",
+  "password": "456"
 }
 
 ###
@@ -34,11 +34,11 @@ GET {{baseUrl}}/user/2
 ###
 
 # PUT update user password
-PUT {{baseUrl}}/user/1
+PUT {{baseUrl}}/user/2
 Content-Type: application/json
 
 {
-  "password": "admin123"
+  "password": "456"
 }
 
 
@@ -49,6 +49,6 @@ POST {{baseUrl}}/user
 Content-Type: application/json
 
 {
-  "username": "Pedro",
-  "password": "admin"
+  "username": "John",
+  "password": "1234"
 }

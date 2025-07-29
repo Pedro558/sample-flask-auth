@@ -23,7 +23,7 @@ def load_user(user_id):
 @app.route('/user', methods=['GET'])
 def users():
   users = User.query.all()
-  users_list = [{'id': user.id, 'username': user.username} for user in users]
+  users_list = [{'id': user.id, 'username': user.username, 'role': user.role} for user in users]
   return jsonify(users_list), 200
 
 @app.route('/user/<int:user_id>', methods=['GET'])
@@ -32,7 +32,7 @@ def get_user(user_id):
   user = User.query.get(user_id)
   if user:
     return jsonify({'username': user.username})
-  return jsonify({'message': 'Usuário não encontrado'}), 404
+  return jsonify({'message': 'Usuario não encontrado'}), 404
 
 @app.route('/user/<int:user_id>', methods=['PUT'])
 @login_required
@@ -40,25 +40,31 @@ def update_user(user_id):
   data = request.json
   user = User.query.get(user_id)
 
+  if user_id != current_user.id and current_user.role == "user":
+    return jsonify({"message": "Operacao não permitida"}), 403
+
   if user and data.get('password'):
     user.password = data.get('password')
     db.session.commit()
-    return jsonify({'message': f'Usuário {user_id} atualizado com sucesso'})
-  return jsonify({'message': 'Usuário não encontrado'}), 404
+    return jsonify({'message': f'Usuario {user_id} atualizado com sucesso'})
+  return jsonify({'message': 'Usuario não encontrado'}), 404
 
 @app.route('/user/<int:user_id>', methods=['DELETE'])
 @login_required
 def delete_user(user_id):
   user = User.query.get(user_id)
 
+  if current_user.role != 'admin':
+    return jsonify({"message": "Operacao não permitida"}), 403
+
   if user_id == current_user.id:
-    return jsonify({"message": "Deleção não permitida"})    
+    return jsonify({"message": "Delecao não permitida"})    
 
   if user:
     db.session.delete(user)
     db.session.commit()
-    return jsonify({"message": f"Usuário {user_id} deletado com sucesso"})
-  return jsonify({"message": "Usuário não encontrado"})
+    return jsonify({"message": f"Usuario {user_id} deletado com sucesso"})
+  return jsonify({"message": "Usuario não encontrado"})
 
 
    
@@ -77,7 +83,7 @@ def login():
         print(current_user.is_authenticated)
         return jsonify({'message': 'Autenticacao realizada com sucesso'}), 200
 
-  return jsonify({'message': 'Credenciais inválidas'}), 400
+  return jsonify({'message': 'Credenciais invalidas'}), 400
 
 @app.route('/logout', methods=['GET'])
 @login_required
@@ -92,12 +98,12 @@ def create_user():
   password = data.get("password")
 
   if username and password:
-     user = User(username=username, password=password)
+     user = User(username=username, password=password, role='user')
      db.session.add(user)
      db.session.commit()
-     return jsonify({'message': 'Usuário criado com sucesso'}), 201
+     return jsonify({'message': 'Usuario criado com sucesso'}), 201
   
-  return jsonify({'message': 'Dados inválidos'}), 400
+  return jsonify({'message': 'Dados invalidos'}), 400
 
 @app.route('/hello-world', methods=['GET'])
 def hello_world():
